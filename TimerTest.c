@@ -23,5 +23,9 @@ int main()
 ISR(TIMER1_COMPA_vect)
 {
     PORTD ^= (1 << DD6); //toggle pin 6
+//    char tmp = SREG; //backup SREG state
+//    cli();
+//    //do something that ist not atomic
+//    SREG = tmp;//Restore SREG
 }
 
