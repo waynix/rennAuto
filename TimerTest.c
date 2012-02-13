@@ -90,6 +90,7 @@ ISR(USART_RX_vect)
 	volatile uint8_t tmp = UDR0;
 	UDR0 = tmp;
 	PORTD ^= (1 << PD5);
+	servo1 = tmp;
 }
 ISR(TIMER1_OVF_vect){}
 ISR(TIMER1_COMPA_vect)
