@@ -8,9 +8,11 @@
 #import <avr/io.h>
 #import <avr/interrupt.h>
 #import <util/delay.h>
-volatile uint8_t servo1;
+volatile uint16_t servo1;
 uint8_t nextServo;
 uint16_t usedTime;
+#define SERVO1_PORT PORTD
+#define SERVO1_PIN  PD7
 #define SERVOCOUNT 1
 int main(int argc, char** argv)
 {
@@ -83,7 +85,7 @@ int main(int argc, char** argv)
 }
 ISR(ADC_vect)
 {
-	servo1 = ADCH;
+	servo1 = (ADCH*2)/3;
 }
 ISR(USART_RX_vect)
 {
@@ -101,12 +103,12 @@ ISR(TIMER1_COMPA_vect)
     switch(nextServo)
     {
     case 0:
-    	PORTD |= (1 << PD7);
-    	OCR1A = 0x100| servo1;
+    	SERVO1_PORT |= (1 << SERVO1_PIN);
+    	OCR1A = 0x00B0+ servo1;
 
     	break;
     case SERVOCOUNT:
-    	PORTD &= ~(1 << PD7);
+    	SERVO1_PORT &= ~(1 << SERVO1_PIN);
     	OCR1A = 5000 - usedTime;
     	break;
     default:
@@ -119,8 +121,13 @@ ISR(TIMER1_COMPA_vect)
     	usedTime = 0;
     	nextServo = 0;
     	//measure next Voltage value
-    	//ADCSRA |= (1 << ADSC);
-    	//PORTD ^= (1 << PD5);
+    	ADCSRA |= (1 << ADSC);
+    	PORTD ^= (1 << PD5);
+//    	servo1++;
+//    	if(servo1 > 0x180)
+//    	{
+//    		servo1 = 0;
+//    	}
     }
 
     SREG = tmp;//Restore SREG
